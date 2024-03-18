@@ -1,84 +1,62 @@
 import java.util.Scanner;
 
 public class ATM {
-    private UserAccount userAccount;
-
-    public ATM(UserAccount userAccount) {
-        this.userAccount = userAccount;
-    }
-
-    public void displayOptions() {
-        System.out.println("1. Check Balance");
-        System.out.println("2. Deposit");
-        System.out.println("3. Withdraw");
-        System.out.println("4. Exit");
-    }
-
-    public void processOption(int option) {
-        switch (option) {
-            case 1:
-                System.out.println("Current Balance: " + userAccount.getBalance());
-                break;
-            case 2:
-                System.out.print("Enter deposit amount: ");
-                double depositAmount = getUserInput();
-                userAccount.deposit(depositAmount);
-                System.out.println("New Balance: " + userAccount.getBalance());
-                break;
-            case 3:
-                System.out.print("Enter withdrawal amount: ");
-                double withdrawalAmount = getUserInput();
-                boolean withdrawalSuccess = userAccount.withdraw(withdrawalAmount);
-                if (withdrawalSuccess) {
-                    System.out.println("Withdrawal successful. New Balance: " + userAccount.getBalance());
-                }
-                break;
-            case 4:
-                System.out.println("Exiting. Thank you!");
-                System.exit(0);
-                break;
-            default:
-                System.out.println("Invalid option. Please try again.");
-        }
-    }
-
-    private double getUserInput() {
-        try (Scanner scanner = new Scanner(System.in)) {
-            double amount = 0;
-            try {
-                amount = scanner.nextDouble();
-            } catch (Exception e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-                scanner.nextLine(); // Consume the invalid input
-            }
-            return amount;
-        }
-    }
+    private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        try (Scanner scanner = new Scanner(System.in)) {
-            System.out.print("Enter your username: ");
-            String username = scanner.nextLine();
+        System.out.println("Welcome to the ATM");
+        System.out.print("Enter username: ");
+        String username = scanner.next();
+        System.out.print("Enter PIN: ");
+        int pin = scanner.nextInt();
 
-            System.out.print("Enter your PIN: ");
-            String pin = scanner.nextLine();
+        // Validate user credentials
+        if (!DummyDatabase.isValidUser(username, pin)) {
+            System.out.println("Invalid credentials");
+            return;
+        }
 
-            UserAccount userAccount = DummyDatabase.getUserAccount(username, pin);
+        BankAccount userAccount = new BankAccount(1000); // Initial balance
+        boolean exit = false;
+        while (!exit) {
+            System.out.println("\nChoose an option:");
+            System.out.println("1. Check balance");
+            System.out.println("2. Deposit amount");
+            System.out.println("3. Withdraw amount");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
 
-            if (userAccount == null) {
-                System.out.println("Invalid username or PIN. Exiting.");
-                System.exit(0);
-            }
-
-            ATM atm = new ATM(userAccount);
-
-            while (true) {
-                atm.displayOptions();
-                System.out.print("Enter option: ");
-                int option = (int) atm.getUserInput();
-                atm.processOption(option);
-                System.out.println(); // Add a newline for better readability
+            switch (choice) {
+                case 1:
+                    System.out.println("Your balance: $" + userAccount.getBalance());
+                    break;
+                case 2:
+                    System.out.print("Enter deposit amount: ");
+                    double depositAmount = scanner.nextDouble();
+                    userAccount.deposit(depositAmount);
+                    System.out.println("Deposit was successful!");
+                    System.out.println("New balance: $" + userAccount.getBalance());
+                    break;
+                case 3:
+                    System.out.print("Enter withdrawal amount: ");
+                    double withdrawAmount = scanner.nextDouble();
+                    if (withdrawAmount <= userAccount.getBalance() && withdrawAmount > 0) {
+                        userAccount.withdraw(withdrawAmount);
+                        System.out.println("Withdrawal was successful");
+                    } else {
+                        System.out.println("Insufficient funds or invalid amount, please enter valid amount");
+                    }
+                    System.out.println("New balance: $" + userAccount.getBalance());
+                    break;
+                case 4:
+                    exit = true;
+                    System.out.println("Thank you for using the ATM");
+                    break;
+                default:
+                    System.out.println("Invalid choice");
             }
         }
+        scanner.close();
     }
 }

@@ -10,20 +10,15 @@ public class BankAccount {
     }
 
     public void deposit(double amount) {
-        if (amount > 0) {
-            balance += amount;
-            System.out.println("Deposit successful. New balance: " + balance);
-        } else {
-            System.out.println("Invalid deposit amount.");
-        }
+        balance += amount;
     }
 
-    public void withdraw(double amount) {
-        if (amount > 0 && amount <= balance) {
+    public boolean withdraw(double amount) {
+        if (balance >= amount) {
             balance -= amount;
-            System.out.println("Withdrawal successful. New balance: " + balance);
+            return true;
         } else {
-            System.out.println("Invalid withdrawal amount or insufficient funds.");
+            return false;
         }
     }
 }
